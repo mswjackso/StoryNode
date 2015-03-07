@@ -1,0 +1,35 @@
+# This is the main file that will hold the handling of every API call in the application
+
+def echo():
+    response.view = 'generic.json'
+    return dict(echo=request.post_vars["echo"])
+
+#@auth.requires_login()
+@request.restful()
+def comment():
+    response.view = 'generic.json'
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Credentials'] = 'true'
+    response.headers['Access-Control-Max-Age'] = 86400
+    response["Access-Control-Allow-Methods"] = "POST, GET, DELETE"
+    
+    # Grab a whole list of comments for a story
+    def GET(**vars):
+        patterns = 'auto'
+        parser = db.parse_as_rest(patterns,args,vars)
+        if parser.status == 200:
+            return dict(content=parser.response)
+        else:
+            raise HTTP(parser.status,parser.error)
+    
+    # Post a new or edit a previous comment
+    def POST(**vars):
+        print vars
+        return vars
+    
+    # Delete a comment
+    def DELETE(table_name,record_id):
+        return db(db[table_name]._id==record_id).delete()
+    
+    # Return proper response
+    return dict(GET=GET, POST=POST, DELETE=DELETE)
